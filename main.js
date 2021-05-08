@@ -1,253 +1,239 @@
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+const scoreSpan = document.getElementById("scoreSpan");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-// Variables
-let score;
-let scoreText;
-let highscore;
-let highscoreText;
-let player;
-let gravity;
-let obstacles = [];
-let gameSpeed;
-let keys = {};
-var bg = new Image();
-var ımg1 = new Image();
+const soldier = new Image();
+const zombie = new Image();
+const bullet = new Image();
+const obstacle = new Image();
+const danger = new Image();
+const ground = new Image();
 
-bg.src = "background-2.jpg";
+const defeat = new Audio();
+const zombieKill = new Audio();
+const scoreUpdate = new Audio();
+const fireBullet = new Audio();
+const mainMusic = new Audio();
 
-// Event Listeners
-document.addEventListener("keydown", function (evt) {
-  keys[evt.code] = true;
-});
-document.addEventListener("keyup", function (evt) {
-  keys[evt.code] = false;
-});
+soldier.src = "images/soldier.png";
+zombie.src = "images/zombie.png";
+bullet.src = "images/bullet.png";
+obstacle.src = "images/obstacle.png";
+danger.src = "images/danger.png";
+ground.src = "images/road.png";
+
+defeat.src = "sfx/defeat.mp3";
+zombieKill.src = "sfx/zombieKill.mp3";
+scoreUpdate.src = "sfx/score.mp3";
+fireBullet.src = "sfx/fireBullet.mp3";
+mainMusic.src = "sfx/main.mp3";
+
+fireBullet.volume = 0.2;
+
+const playerSizeX = 85;
+const playerSizeY = 110;
+
+const obstacleSizeX = 65;
+const obstacleSizeY = 110;
+
+const zombieSizeX = 60;
+const zombieSizeY = 110;
+
+const bulletSizeX = 25;
+const bulletSizeY = 25;
+
+const movement = playerSizeY + 20;
+let zombieRun = 1;
+const speed = 15;
+
+const startX = 90;
+const startY = 40;
+
+const zombies = [];
+const lanes = [];
+const bullets = [];
+
+let animationId;
+let score = 0;
+let spawnTimer = 3000;
+let scoreKeeper;
 
 class Player {
-  constructor(x, y, w, h, c) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.c = c;
-
-    this.dy = 0;
-    this.jumpForce = 15;
-    this.originalHeight = h;
-    this.grounded = false;
-    this.jumpTimer = 0;
+  constructor(x, y, movement) {
+    // karakter özellikleri
+    this._x = x;
+    this._y = y;
+    this._movement = movement;
   }
 
-  Animate() {
-    // Jump
-
-    if (keys["Space"] || keys["KeyW"] | keys["KeyUp"]) {
-      this.Jump();
-    } else {
-      this.jumpTimer = 0;
-    }
-
-    if (keys["ShiftLeft"] || keys["KeyS"]) {
-      this.h = this.originalHeight / 2;
-    } else {
-      this.h = this.originalHeight;
-    }
-
-    this.y += this.dy;
-
-    // Gravity
-    if (this.y + this.h < canvas.height) {
-      this.dy += gravity;
-      this.grounded = false;
-    } else {
-      this.dy = 0;
-      this.grounded = true;
-      this.y = canvas.height - this.h;
-    }
-
-    this.Draw();
+  draw() {
+    context.drawImage(soldier, this._x, this._y, playerSizeX, playerSizeY); // karakteri canvasa çiziyor
   }
-
-  Jump() {
-    if (this.grounded && this.jumpTimer == 0) {
-      this.jumpTimer = 1;
-      this.dy = -this.jumpForce;
-    } else if (this.jumpTimer > 0 && this.jumpTimer < 15) {
-      this.jumpTimer++;
-      this.dy = -this.jumpForce - this.jumpTimer / 50;
-    }
+  update() {
+    // hareket etmesi için karakterin kordinatlarını güncelliyor
+    this._x = this._x;
+    this._y = this._y + this._movement;
   }
+}
+class Zombie {
+  constructor(x, y) {
+    this._x = x;
+    this._y = y;
+    this._zombieRun = zombieRun;
+  }
+  draw() {
+    context.drawImage(zombie, this._x, this._y, zombieSizeX, zombieSizeY);
+  }
+  update() {
+    this.draw();
+    this._x = this._x - this._zombieRun;
+    this._y = this._y;
+  }
+}
+class Bullet {
+  constructor(x, y) {
+    this._x = x;
+    this._y = y;
+    this._speed = speed;
+  }
+  draw() {
+    context.drawImage(bullet, this._x, this._y, bulletSizeX, bulletSizeY);
+  }
+  update() {
+    this.draw();
+    this._x = this._x + this._speed;
+    this._y = this._y;
+  }
+}
+const player = new Player(startX, startY, movement); // player objesini oluşturma
 
-  Draw() {
-    ctx.beginPath();
-    ctx.fillStyle = this.c;
+function lanesDetect() {
+  let playerYPos = player._y;
 
-    ctx.fillRect(this.x, this.y, this.w, this.h);
-    ctx.closePath();
+  while (playerYPos <= canvas.height - playerSizeY) {
+    lanes.push(playerYPos);
+    playerYPos += movement;
   }
 }
 
-class Obstacle {
-  constructor(x, y, w, h, c) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.c = c;
+function draw() {
+  // devamlı çalışarak, oyunu oluşturan fonksiyon
+  let pattern = context.createPattern(ground, "repeat");
+  context.fillStyle = pattern;
+  //context.fillStyle = "#BABDB6";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  player.draw();
 
-    this.dx = -gameSpeed;
+  if (score % 2000 === 0 && score != 0 && score != scoreKeeper) {
+    scoreUpdate.play();
+    scoreKeeper = score;
   }
 
-  Update() {
-    this.x += this.dx;
-    this.Draw();
-    this.dx = -gameSpeed;
+  for (let i = 0; i < canvas.height / obstacleSizeY; i++) {
+    // askerin arkasındaki bariyerleri çizen for
+    context.drawImage(
+      obstacle,
+      10,
+      i * obstacleSizeY,
+      obstacleSizeX,
+      obstacleSizeY
+    );
   }
 
-  Draw() {
-    //kutu üretim merkezi
-    ctx.beginPath();
-    ctx.fillStyle = this.c;
-
-    ctx.fillRect(this.x, this.y, this.w, this.h);
-    ctx.closePath();
-  }
-}
-
-class Text {
-  constructor(t, x, y, a, c, s) {
-    this.t = t;
-    this.x = x;
-    this.y = y;
-    this.a = a;
-    this.c = c;
-    this.s = s;
-  }
-
-  Draw() {
-    ctx.beginPath();
-    ctx.fillStyle = this.c;
-    ctx.font = this.s + "px sans-serif";
-    ctx.textAlign = this.a;
-    ctx.fillText(this.t, this.x, this.y);
-    ctx.closePath();
-  }
-}
-
-// Game Functions
-function SpawnObstacle() {
-  let size = RandomIntInRange(20, 70);
-  let type = RandomIntInRange(0, 1);
-  let obstacle = new Obstacle(
-    canvas.width + size,
-    canvas.height - size,
-    size,
-    size,
-    "#7FFF00"
-  );
-
-  if (type == 1) {
-    obstacle.y -= player.originalHeight - 10;
-  }
-  obstacles.push(obstacle);
-}
-
-function RandomIntInRange(min, max) {
-  return Math.round(Math.random() * (max - min) + min);
-}
-
-function Start() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  ctx.font = "20px sans-serif";
-
-  gameSpeed = 4;
-  gravity = 1;
-
-  score = 0;
-  highscore = 0;
-  if (localStorage.getItem("highscore")) {
-    highscore = localStorage.getItem("highscore");
-  }
-
-  player = new Player(250, 0, 60, 60, "#7FFF00");
-
-  scoreText = new Text("Skor: " + score, 25, 25, "left", "#212121", "20");
-  highscoreText = new Text(
-    "En yüksek skor: " + highscore,
-    canvas.width - 25,
-    25,
-    "right",
-    "#212121",
-    "20"
-  );
-
-  //requestAnimationFrame(Update);
-}
-
-let initialSpawnTimer = 200;
-let spawnTimer = initialSpawnTimer;
-
-function Update() {
-  let pattern = ctx.createPattern(bg, "repeat");
-  ctx.fillStyle = pattern;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  //ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  spawnTimer--;
-  if (spawnTimer <= 0) {
-    SpawnObstacle();
-    console.log(obstacles);
-    spawnTimer = initialSpawnTimer - gameSpeed * 8;
-
-    if (spawnTimer < 60) {
-      spawnTimer = 60;
-    }
-  }
-
-  // Spawn Enemies
-  for (let i = 0; i < obstacles.length; i++) {
-    let o = obstacles[i];
-
-    if (o.x + o.w < 0) {
-      obstacles.splice(i, 1);
+  zombies.forEach((zombie, zombieIndex) => {
+    // zombileri çizen ve zombilerin ölme durumlarını kontrol eden döngü
+    zombie.update();
+    bullets.forEach((bullet, bulletIndex) => {
+      if (
+        zombie._x - bullet._x + bulletSizeX < 1 &&
+        bullet._y == zombie._y + 34
+      ) {
+        setTimeout(() => {
+          score += 100;
+          scoreSpan.innerText = score;
+          bullets.splice(bulletIndex, 1);
+          zombies.splice(zombieIndex, 1);
+          //zombieKill.play();
+        }, 0);
+      }
+    });
+    if (zombie._x <= 40) {
+      context.drawImage(danger, 30, zombie._y, 75, 75); // unlem işaretini o yere çizdir
     }
 
     if (
-      player.x < o.x + o.w &&
-      player.x + player.w > o.x &&
-      player.y < o.y + o.h &&
-      player.y + player.h > o.y
+      zombie._x <= -zombieSizeX - 5 ||
+      (zombie._x - player._x + playerSizeX < 1 && zombie._y == player._y)
     ) {
-      obstacles = [];
-      score = 0;
-      spawnTimer = initialSpawnTimer;
-      gameSpeed = 3;
-      window.localStorage.setItem("highscore", highscore);
+      defeat.play();
+
+      setTimeout(() => {
+        cancelAnimationFrame(animationId);
+      }, 0);
     }
+  });
 
-    o.Update();
-  }
+  bullets.forEach((bullet, bulletIndex) => {
+    bullet.update();
+    if (bullet._x + bulletSizeX > canvas.width) {
+      setTimeout(() => {
+        bullets.splice(bulletIndex, 1);
+      }, 0);
+    }
+  });
 
-  player.Animate();
-
-  score++;
-  scoreText.t = "Skor: " + score;
-  scoreText.Draw();
-
-  if (score > highscore) {
-    highscore = score;
-    highscoreText.t = "En yüksek skor: " + highscore;
-  }
-
-  highscoreText.Draw();
-
-  gameSpeed += 0.003;
-
-  requestAnimationFrame(Update);
+  animationId = requestAnimationFrame(draw);
 }
 
-Start();
-Update();
+document.addEventListener("keyup", (e) => {
+  playerMovement(e.key);
+});
+
+function playerMovement(pressedKey) {
+  if (pressedKey == "w" || pressedKey == "W" || pressedKey == "ArrowUp") {
+    // W tuşuna basılınca karakteri yukarı doğru hareket ettiriyoruz
+
+    if (player._y - movement >= startY) {
+      player._movement = -movement;
+      player.update();
+    }
+  } else if (
+    pressedKey === "s" ||
+    pressedKey === "S" ||
+    pressedKey === "ArrowDown"
+  ) {
+    // S tuşuna basılınca karakteri aşağı doğru hareket ettiriyoruz.
+    if (player._y + movement <= lanes[lanes.length - 1]) {
+      player._movement = movement;
+      player.update();
+    }
+  }
+}
+
+document.addEventListener("click", (e) => {
+  bullets.push(new Bullet(player._x + playerSizeX, player._y + 34));
+  fireBullet.play();
+  mainMusic.volume = 0.05;
+  mainMusic.play();
+});
+
+function spawnZombies() {
+  setInterval(() => {
+    zombies.push(
+      new Zombie(
+        canvas.width + zombieSizeX,
+        lanes[Math.floor(Math.random() * lanes.length)]
+      )
+    );
+
+    zombieRun >= 15
+      ? (zombieRun = 10)
+      : (zombieRun = zombieRun + Math.random() / 2);
+  }, 350);
+}
+
+draw();
+lanesDetect();
+spawnZombies();

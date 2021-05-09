@@ -37,4 +37,4 @@ Oyun başladıktan sonra çalan arkadaki müziği youtube üzerinden buldum ve o
 
 # Lisans ve İletişim
 Karakter tasarımları ve kodlar  [@MustafaErenn](https://github.com/MustafaErenn) tarafından yapılmıştır. 
-Mustafa Eren:  [Linkedin](https://www.linkedin.com/in/mustafa-eren-9214661b3/)
+[Linkedin](https://www.linkedin.com/in/mustafa-eren-9214661b3/)

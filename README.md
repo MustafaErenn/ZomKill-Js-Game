@@ -36,4 +36,4 @@ Ses efektlerini sfxr isimli uygulamadan seçtikten sonra indirip oyuna ekledim.
 Oyun başladıktan sonra çalan arkadaki müziği youtube üzerinden buldum ve oyuna entegre ettim.(Müziğin youtube linki -> https://www.youtube.com/watch?v=6HvFLkuFOvc)
 
 # Lisans 
-Karakter tasarımları ve kodlar @MustafaErenn tarafından yapılmıştır. 
+Karakter tasarımları ve kodlar  [@MustafaErenn](https://github.com/MustafaErenn) tarafından yapılmıştır. 

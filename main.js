@@ -60,6 +60,8 @@ let score = 0;
 let spawnTimer = 3000;
 let scoreKeeper;
 
+let isDead = false;
+
 class Player {
   constructor(x, y, movement) {
     // karakter özellikleri
@@ -124,6 +126,7 @@ function draw() {
   context.fillStyle = pattern;
   //context.fillStyle = "#BABDB6";
   context.fillRect(0, 0, canvas.width, canvas.height);
+
   player.draw();
 
   if (score % 2000 === 0 && score != 0 && score != scoreKeeper) {
@@ -170,6 +173,7 @@ function draw() {
       defeat.play();
 
       setTimeout(() => {
+        gameOver();
         cancelAnimationFrame(animationId);
       }, 0);
     }
@@ -232,6 +236,12 @@ function spawnZombies() {
       ? (zombieRun = 10)
       : (zombieRun = zombieRun + Math.random() / 2);
   }, 350);
+}
+
+function gameOver() {
+  document.addEventListener("click", function (e) {
+    location.reload();
+  });
 }
 
 draw();

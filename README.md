@@ -10,7 +10,7 @@ Bütün dünya zombilerin istilasında katledildi. Sen insanlığın son kalesin
 `Mouse Left Click` kullanarak zombilere ateş edebilirsin.
 
 # Oyundan görüntüler
-RESIMLER GELECEK
+<img src="images/game1.png" width="300" height="550">
 
 # Kullanılan Teknolojiler
 - HTML
@@ -19,7 +19,7 @@ RESIMLER GELECEK
 
 # Kurulum ve Oynanış
 ## Github üzerinden indirmek
-BURAYA RESİM GELECEK
+<img src="images/kurulum.png" width="300" height="550">
 Resimdeki adımları takip ederek kodu zip olarak indirdikten sonra zipi açarak dosya içindeki index.html'e çift tıklayarak açarsanız oyunu oynabilirsiniz.
 ## Oyun linki
 Kodu indirmek istemezseniz linkten oynayabilirsiniz -> https://mustafaerenn.github.io/Js-Game/

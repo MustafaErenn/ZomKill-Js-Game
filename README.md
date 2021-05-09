@@ -10,7 +10,7 @@ Bütün dünya zombilerin istilasında katledildi. Sen insanlığın son kalesin
 `Mouse Left Click` kullanarak zombilere ateş edebilirsin.
 
 # Oyundan görüntüler
-<img src="images/game1.png" width="300" height="550">
+<img src="images/game1.png" >
 
 # Kullanılan Teknolojiler
 - HTML

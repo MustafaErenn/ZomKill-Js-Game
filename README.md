@@ -1,5 +1,5 @@
 # ZomKill 🧟
-`[Oyun Linki](https://mustafaerenn.github.io/ZomKill-Js-Game/)`
+[Oyun Linki](https://mustafaerenn.github.io/ZomKill-Js-Game/)
 # Genel Özet
 ## Proje Amacı
 Bu proje  BTU-Web Tabanlı Programlama dersi için yaptığım sadece javascript ve html kullanarak geliştirdiğim oyundur.

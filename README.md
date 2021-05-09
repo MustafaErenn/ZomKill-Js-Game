@@ -19,7 +19,7 @@ Bütün dünya zombilerin istilasında katledildi. Sen insanlığın son kalesin
 
 # Kurulum ve Oynanış
 ## Github üzerinden indirmek
-<img src="images/kurulum.png" width="300" height="550">
+<img src="images/kurulum.png">
 Resimdeki adımları takip ederek kodu zip olarak indirdikten sonra zipi açarak dosya içindeki index.html'e çift tıklayarak açarsanız oyunu oynabilirsiniz.
 ## Oyun linki
 Kodu indirmek istemezseniz linkten oynayabilirsiniz -> https://mustafaerenn.github.io/Js-Game/

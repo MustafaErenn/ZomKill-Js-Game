@@ -23,7 +23,7 @@ Bütün dünya zombilerin istilasında katledildi. Sen insanlığın son kalesin
 Resimdeki adımları takip ederek kodu zip olarak indirdikten sonra zipi açarak dosya içindeki index.html'e çift tıklayarak açarsanız oyunu oynabilirsiniz.
 
 ## Oyun linki
-Kodu indirmek istemezseniz linkten oynayabilirsiniz -> https://mustafaerenn.github.io/Js-Game/
+Kodu indirmek istemezseniz linkten oynayabilirsiniz -> https://mustafaerenn.github.io/ZomKill-Js-Game/
 
 
 # Tasarım

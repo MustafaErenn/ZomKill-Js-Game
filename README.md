@@ -1,7 +1,7 @@
 # ZomKill 🧟
 # Genel Özet
 ## Proje Amacı
-Bu proje  BTU- Web Tabanlı Programlama dersi için yaptığım sadece javascript ve html kullanarak geliştirdiğim oyundur.
+Bu proje  BTU-Web Tabanlı Programlama dersi için yaptığım sadece javascript ve html kullanarak geliştirdiğim oyundur.
 ## Oyunun Hikayesi
 Bütün dünya zombilerin istilasında katledildi. Sen insanlığın son kalesindeki koruyucu bir askersin. Zombiler bariyerlere ulaşmadan önce onları yok et.
 

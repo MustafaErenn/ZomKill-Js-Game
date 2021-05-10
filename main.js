@@ -239,6 +239,23 @@ function spawnZombies() {
 }
 
 function gameOver() {
+  var gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+  gradient.addColorStop("0.0", "pink");
+  context.fillStyle = gradient;
+  context.fillRect(canvas.width / 2 - 250, canvas.height / 2 - 35, 500, 100);
+  gradient.addColorStop("0.0", "red");
+  context.fillStyle = gradient;
+  context.font = "32px Verdana";
+  context.fillText(
+    "Your Score: " + score,
+    canvas.width / 2 - 250 + 110,
+    canvas.height / 2
+  );
+  context.fillText(
+    " Click on Screen to Play Again",
+    canvas.width / 2 - 250,
+    canvas.height / 2 + 50
+  );
   document.addEventListener("click", function (e) {
     location.reload();
   });

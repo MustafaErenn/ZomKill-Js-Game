@@ -1,6 +1,7 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 const scoreSpan = document.getElementById("scoreSpan");
+const bestScoreSpan = document.getElementById("bestScoreSpan");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -113,7 +114,10 @@ const player = new Player(startX, startY, movement); // player objesini oluştur
 
 function lanesDetect() {
   let playerYPos = player._y;
-
+  bestScoreSpan.innerText =
+    localStorage.getItem("highestscore") == null
+      ? 0
+      : localStorage.getItem("highestscore");
   while (playerYPos <= canvas.height - playerSizeY) {
     lanes.push(playerYPos);
     playerYPos += movement;
@@ -168,7 +172,7 @@ function draw() {
 
     if (
       zombie._x <= -zombieSizeX - 5 ||
-      (zombie._x - player._x + playerSizeX < 1 && zombie._y == player._y)
+      (zombie._x - player._x < 1 && zombie._y == player._y)
     ) {
       defeat.play();
 
@@ -239,6 +243,11 @@ function spawnZombies() {
 }
 
 function gameOver() {
+  if (score > localStorage.getItem("highestscore")) {
+    localStorage.setItem("highestscore", score);
+    bestScoreSpan.innerText = localStorage.getItem("highestscore");
+  }
+
   var gradient = context.createLinearGradient(0, 0, canvas.width, 0);
   gradient.addColorStop("0.0", "pink");
   context.fillStyle = gradient;

@@ -57,8 +57,10 @@ const lanes = [];
 const bullets = [];
 
 let animationId;
+
 let score = 0;
 let spawnTimer = 3000;
+
 let scoreKeeper;
 
 let isDead = false;
@@ -87,9 +89,10 @@ class Zombie {
     this._zombieRun = zombieRun;
   }
   draw() {
-    context.drawImage(zombie, this._x, this._y, zombieSizeX, zombieSizeY);
+    context.drawImage(zombie, this._x, this._y, zombieSizeX, zombieSizeY); //zombiyi cansava çiziyor
   }
   update() {
+    //update fonksiyonu ile spawn olan zombileri ekranın soluna dogru hareket ettiririz.
     this.draw();
     this._x = this._x - this._zombieRun;
     this._y = this._y;
@@ -102,9 +105,10 @@ class Bullet {
     this._speed = speed;
   }
   draw() {
-    context.drawImage(bullet, this._x, this._y, bulletSizeX, bulletSizeY);
+    context.drawImage(bullet, this._x, this._y, bulletSizeX, bulletSizeY); //mermiyi çiziyoruz.
   }
   update() {
+    //update fonksiyonu ile sol click tıklandıkça  ekranın sağına  dogru zombileri öldürmek için hareket ettiririz.
     this.draw();
     this._x = this._x + this._speed;
     this._y = this._y;
@@ -113,6 +117,11 @@ class Bullet {
 const player = new Player(startX, startY, movement); // player objesini oluşturma
 
 function lanesDetect() {
+  // bu fonksiyon ekrandaki koridorları belirlemek için yazıldı.
+  // tam ekranda oynamayan oyuncular için canvasin boyu dikkate alınarak playerin ve zombilerin hareket
+  // edeceği koridorlar belirlendi. Bu fonksiyon oyun başladığında ilk çağırılacak fonksiyonlardan.
+  // ve ilk çağırılan fonksiyonlardan olduğundan best score u local storagedan çeken ve ekranda gösterilmesini sağlayan fonksiyondur.
+
   let playerYPos = player._y;
   bestScoreSpan.innerText =
     localStorage.getItem("highestscore") == null
@@ -124,22 +133,24 @@ function lanesDetect() {
   }
 }
 
-function draw() {
+function playGame() {
   // devamlı çalışarak, oyunu oluşturan fonksiyon
+
+  //arka plan resmini ekrana çizdiren kodlar
   let pattern = context.createPattern(ground, "repeat");
   context.fillStyle = pattern;
-  //context.fillStyle = "#BABDB6";
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  player.draw();
+  player.draw(); // her karakterin ekranda kalmasını sağlamak için her döngüde çağırıyoruz.
 
+  //2000 skorda bir ses efektini çaldıran if
   if (score % 2000 === 0 && score != 0 && score != scoreKeeper) {
     scoreUpdate.play();
     scoreKeeper = score;
   }
 
+  // askerin arkasındaki bariyerleri çizen for
   for (let i = 0; i < canvas.height / obstacleSizeY; i++) {
-    // askerin arkasındaki bariyerleri çizen for
     context.drawImage(
       obstacle,
       10,
@@ -153,6 +164,7 @@ function draw() {
     // zombileri çizen ve zombilerin ölme durumlarını kontrol eden döngü
     zombie.update();
     bullets.forEach((bullet, bulletIndex) => {
+      //mermilerin zombilere çarpmasını kontrol eden  döngü
       if (
         zombie._x - bullet._x + bulletSizeX < 1 &&
         bullet._y == zombie._y + 34
@@ -174,6 +186,7 @@ function draw() {
       zombie._x <= -zombieSizeX - 5 ||
       (zombie._x - player._x < 1 && zombie._y == player._y)
     ) {
+      // oyunun bitmesi durumunu kontrol eden if,zombiler bizim olmadığımız koridorun sonuna ulaşırsa veya oyuncumuza ulaşırlarsa oyunu bitiriyor
       defeat.play();
 
       setTimeout(() => {
@@ -184,6 +197,7 @@ function draw() {
   });
 
   bullets.forEach((bullet, bulletIndex) => {
+    // mermilerin canvastan çıktığında yok etmeye
     bullet.update();
     if (bullet._x + bulletSizeX > canvas.width) {
       setTimeout(() => {
@@ -192,10 +206,11 @@ function draw() {
     }
   });
 
-  animationId = requestAnimationFrame(draw);
+  animationId = requestAnimationFrame(playGame);
 }
 
 document.addEventListener("keyup", (e) => {
+  // klayve ile karakteri hareket ettirmek için yazılan fonksiyonu basılan tus ile çagırıyoruz
   playerMovement(e.key);
 });
 
@@ -220,7 +235,9 @@ function playerMovement(pressedKey) {
   }
 }
 
+// sol click basıldıkça ateş etmemizi ve ateş etmemnin ses efektinin çalmasını sağlayan fonksiyon
 document.addEventListener("click", (e) => {
+  // sol click basıldıkça ateş etmemizi ve ateş etmemnin ses efektinin çalmasını sağlayan fonksiyon
   bullets.push(new Bullet(player._x + playerSizeX, player._y + 34));
   fireBullet.play();
   mainMusic.volume = 0.05;
@@ -228,6 +245,8 @@ document.addEventListener("click", (e) => {
 });
 
 function spawnZombies() {
+  // zombilerin oluşturulmasını sağlayan fonksiyon belli bir zaman ile devamlı zombie dizimize push işlemi yapar
+  // bu sayede playGame fonksiyonunda bu zombi dizisi güncellenir ve yeni zombiler çizilir
   setInterval(() => {
     zombies.push(
       new Zombie(
@@ -236,6 +255,9 @@ function spawnZombies() {
       )
     );
 
+    // bu kontrol zombilerin hızlarını kontrol etmek için yapıldı zombiler yavaştan başlar ve oyun ilerledikçe
+    // hızlarını kontrol eden değişken zamana bağlı olarak artar ama bell bir süre sonra çok hızlandığı için 10 ile 15 değerleri arasında
+    // tutmak için yazildi.
     zombieRun >= 15
       ? (zombieRun = 10)
       : (zombieRun = zombieRun + Math.random() / 2);
@@ -243,6 +265,10 @@ function spawnZombies() {
 }
 
 function gameOver() {
+  // playGame fonksyionundan cağırılan ve oyunun bittiğinde yapılması işlemleri tutan fonksiyon
+  // bestscore yazısını eğer daha yüksek bir skor ile bitirmişsek oyunu günceller.
+  // ekrana yeniden başlama ile bilgiyi getirir.
+  // ve ekrana tekrar sol click ile basılırsa ekranı yeniden başlatır ve oyun yeniden başlar.
   if (score > localStorage.getItem("highestscore")) {
     localStorage.setItem("highestscore", score);
     bestScoreSpan.innerText = localStorage.getItem("highestscore");
@@ -270,6 +296,6 @@ function gameOver() {
   });
 }
 
-draw();
+playGame();
 lanesDetect();
 spawnZombies();
